@@ -4,54 +4,81 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Ecosistema Comitato Studentesco - Mappa 3D</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
     <style>
       body {
         margin: 0;
         overflow: hidden;
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #000011;
-        color: white;
+        font-family: "Rajdhani", sans-serif;
+        background-color: #e0e0e0; /* Sfondo chiaro/silver */
+        color: #333;
+      }
+      * {
+        box-sizing: border-box; /* Gestione corretta delle dimensioni */
       }
       #graph-container {
         width: 100vw;
         height: 100vh;
         touch-action: none; /* Importante per mobile: previene lo scroll della pagina mentre si ruota il modello */
+        background: radial-gradient(circle at center, #f5f5f5 0%, #d0d0d0 100%);
       }
       #ui-overlay {
         position: absolute;
         top: 20px;
         left: 20px;
-        background: rgba(0, 0, 0, 0.7);
+        background: rgba(255, 255, 255, 0.85);
         padding: 20px;
-        border-radius: 10px;
-        border: 1px solid #333;
+        border: 2px solid #888;
+        clip-path: polygon(
+          10% 0,
+          100% 0,
+          100% 90%,
+          90% 100%,
+          0 100%,
+          0 10%
+        ); /* Forma angolare */
         max-width: 300px;
         pointer-events: none; /* Let clicks pass through to canvas unless on interactive elements */
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(5px);
         transition: opacity 0.3s;
       }
       #ui-overlay h1 {
         margin-top: 0;
-        font-size: 1.2rem;
-        color: #4db8ff;
+        font-size: 1.5rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: #222;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 5px;
+        margin-bottom: 15px;
       }
       .legend-item {
         display: flex;
         align-items: center;
         margin-bottom: 8px;
-        font-size: 0.9rem;
-        color: #eee;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #444;
       }
       .color-box {
-        width: 15px;
-        height: 15px;
+        width: 12px;
+        height: 12px;
         margin-right: 10px;
-        border-radius: 3px;
+        border: 1px solid #666;
+        transform: rotate(45deg); /* Rombo */
       }
       .instructions {
-        margin-top: 15px;
-        font-size: 0.8rem;
-        color: #aaa;
+        margin-top: 20px;
+        font-size: 0.9rem;
+        color: #555;
+        border-top: 1px solid #ccc;
+        padding-top: 10px;
       }
 
       /* Responsive Styles for Mobile */
@@ -62,6 +89,8 @@
           left: 10px;
           right: 10px;
           max-width: none;
+          clip-path: none;
+          border-radius: 5px;
           padding: 15px;
           pointer-events: none; /* Container doesn't block */
         }
@@ -102,14 +131,14 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        background: #1a1a2e;
-        padding: 25px;
-        border-radius: 12px;
-        border: 1px solid #4db8ff;
-        box-shadow: 0 0 20px rgba(77, 184, 255, 0.3);
+        background: rgba(0, 15, 30, 0.95);
+        padding: 30px;
+        border: 1px solid #00ddee;
+        box-shadow: 0 0 30px rgba(0, 221, 238, 0.3);
         z-index: 1000;
-        min-width: 300px;
+        min-width: 320px;
         text-align: center;
+        clip-path: polygon(5% 0, 100% 0, 100% 95%, 95% 100%, 0 100%, 0 5%);
       }
       #modal-overlay {
         display: none;
@@ -118,54 +147,107 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.6);
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(3px);
         z-index: 999;
       }
       .modal-title {
-        font-size: 1.4rem;
+        font-size: 1.8rem;
         margin-bottom: 10px;
-        color: #fff;
+        color: #00ddee;
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-shadow: 0 0 10px rgba(0, 221, 238, 0.5);
       }
       .modal-desc {
-        color: #ccc;
-        margin-bottom: 20px;
-        font-size: 0.95rem;
+        color: #aaccff;
+        margin-bottom: 25px;
+        font-size: 1.1rem;
+        font-weight: 500;
       }
       .modal-btn {
         display: block;
         width: 100%;
-        padding: 10px;
-        margin: 8px 0;
-        background: #007bff;
+        padding: 12px;
+        margin: 10px 0;
+        background: linear-gradient(135deg, #0088ff, #0044aa);
         color: white;
         text-decoration: none;
-        border-radius: 5px;
-        transition: background 0.2s;
-        border: none;
+        text-align: center; /* Centra il testo */
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 1px;
+        transition: transform 0.2s, box-shadow 0.2s;
+        border: 1px solid #00aaff;
         cursor: pointer;
-        font-size: 1rem;
+        clip-path: polygon(
+          10px 0,
+          100% 0,
+          100% calc(100% - 10px),
+          calc(100% - 10px) 100%,
+          0 100%,
+          0 10px
+        );
       }
       .modal-btn:hover {
-        background: #0056b3;
+        transform: translateY(-2px);
+        box-shadow: 0 0 15px rgba(0, 136, 255, 0.6);
       }
       .modal-btn.secondary {
-        background: #444;
+        background: linear-gradient(135deg, #333, #111);
+        border: 1px solid #666;
       }
       .modal-btn.secondary:hover {
-        background: #555;
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
       }
       .close-btn {
         position: absolute;
         top: 10px;
-        right: 10px;
+        right: 15px;
         background: none;
         border: none;
-        color: #aaa;
-        font-size: 1.2rem;
+        color: #00ddee;
+        font-size: 2rem;
         cursor: pointer;
+        line-height: 0.8;
+        text-shadow: 0 0 5px #00ddee;
       }
       .close-btn:hover {
-        color: white;
+        color: #fff;
+      }
+      #reset-btn-container {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        z-index: 100;
+      }
+      .hackers-btn {
+        background: rgba(0, 0, 0, 0.7);
+        border: 1px solid #00ddee;
+        color: #00ddee;
+        padding: 10px 20px;
+        font-family: "Rajdhani", sans-serif;
+        font-weight: 700;
+        font-size: 1rem;
+        text-transform: uppercase;
+        cursor: pointer;
+        clip-path: polygon(
+          10px 0,
+          100% 0,
+          100% calc(100% - 10px),
+          calc(100% - 10px) 100%,
+          0 100%,
+          0 10px
+        );
+        transition: all 0.3s;
+        box-shadow: 0 0 10px rgba(0, 221, 238, 0.2);
+      }
+      .hackers-btn:hover {
+        background: rgba(0, 221, 238, 0.2);
+        box-shadow: 0 0 20px rgba(0, 221, 238, 0.6);
+        text-shadow: 0 0 5px #00ddee;
+        transform: scale(1.05);
       }
     </style>
     <!-- Import Three.js and 3d-force-graph -->
@@ -201,6 +283,10 @@
       </div>
     </div>
 
+    <div id="reset-btn-container">
+      <button id="reset-camera" class="hackers-btn">RESET VISUALE</button>
+    </div>
+
     <!-- Modal HTML -->
     <div id="modal-overlay"></div>
     <div id="node-modal">
@@ -213,6 +299,82 @@
     </div>
 
     <div id="graph-container"></div>
+
+    <!-- DATI DEL GRAFO IN FORMATO MERMAID-LIKE PER FACILE MODIFICA -->
+    <script id="mermaid-data" type="text/plain">
+                                    %% Definizioni Nodi (id["Label"]:::TIPO)
+                                    %% Proprietà aggiuntive indentate sotto il nodo
+                                    voting-dapp["Voting Centralized App"]:::FRONTEND_CENTRALIZED
+                                      desc: "Interfaccia centralizzata per il voto"
+                                      pos: -150,0,100
+                                      site: "https://votazionicomitato.vercel.app/"
+                                      github: "https://github.com/DuPont9029/C.O.V.D.E.V"
+
+                                    decentralized-voting-dapp["Decentralized Voting DApp"]:::FRONTEND_DECENTRALIZED
+                                      desc: "Interfaccia decentralizzata per il voto"
+                                      pos: -200,-50,150
+                                      site: "https://cdm4upstdl7n3kbaooekc6nxgrrfjnazeocmunigrettyv2562rq.trump-ario.store/ENnKPlMa_t2oIHOIoXm3NGJUtBkjhMo1BoknPFdd9qM"
+                                      github: "https://ardrive.trump-ario.store/#/file/d0895fc6-2085-4914-85c9-99104bf05f21/view"
+
+                                    assembly-dapp["Assembly Centralized App"]:::FRONTEND_CENTRALIZED
+                                      desc: "Interfaccia centralizzata per richiesta assemblee"
+                                      pos: 250,0,100
+                                      site: "https://assembleecomitato.vercel.app/"
+                                      github: "https://github.com/DuPont9029/assembly"
+
+                                    decentralized-assembly-dapp["Decentralized Assembly DApp"]:::FRONTEND_DECENTRALIZED
+                                      desc: "Interfaccia decentralizzata per richiesta assemblee"
+                                      pos: 300,-50,150
+                                      site: "https://bdqkkrbu7qskoptqv6d5a2upwapqycr7pc74ij5mx4lu6cxvw4ea.arweave.net/COClRDT8JKc-cK-H0GqPsB8MCj94v8QnrL8XTwr1twg"
+                                      github: "https://ardrive.trump-ario.store/#/file/d597e202-1fe9-4b42-90dc-d84892e988c3/view"
+
+                                    voting-contract["Smart Contract Voto"]:::BACKEND_CONTRACT
+                                      desc: "Logica di voto su blockchain"
+                                      pos: 0,100,0
+                                      blockchain: "https://etherscan.io/address/0x88f2d5c26395dedbf978079e5142caf548688e72"
+                                      github: "https://github.com/DuPont9029/C.O.V.D.E.V/blob/main/contratto.sol"
+
+                                    scdb-contract["SCDB Bank"]:::BACKEND_CONTRACT
+                                      desc: "Student Committee Decentralized Bank"
+                                      pos: 0,150,-100
+                                      blockchain: "https://etherscan.io/address/0xCdE2f579bb7dF0a19C82A494f5441480e2B206A0"
+
+                                    lido-contract["Lido stETH"]:::BACKEND_CONTRACT
+                                      desc: "Liquid Staking Protocol"
+                                      pos: 0,200,-150
+                                      blockchain: "https://etherscan.io/token/0xae7ab96520de3a18e5e111b5eaab095312d7fe84"
+
+                  donate-nft-dapp["Donate & Receive NFT"]:::FRONTEND_DECENTRALIZED
+        desc: "Fai una donazione e ricevi un NFT"
+        pos: 100,100,80
+        site: "https://5zmsul6imbcxc4hpcvfgmneqdybtpcug45qbcplklo63zaablvuq.arweave.net/7lkqL8hgRXFw7xVKZjSQHgM3iobnYBE9alu9vIABXWk"
+        github: "https://ardrive.trump-ario.store/#/file/f50c3069-9285-471c-bac7-d78846a97e37/view"
+
+      donate-contract["Donate Contract"]:::BACKEND_CONTRACT
+                    desc: "Smart Contract Donazioni"
+                    pos: 100,100,0
+                    blockchain: "https://etherscan.io/address/0x070f867acfAbE468A36621C8584ed3ba0CB541Fa"
+
+                  %% Collegamenti
+                                    %% ==> Verde Solido (Active)
+                                    %% --> Grigio Solido (Standard)
+                                    %% -.-> Verde Tratteggiato (Backend/Dashed)
+                                    %% ~~~ Invisibile (Grouping)
+
+                                    voting-dapp ==> voting-contract
+                                    decentralized-voting-dapp ==> voting-contract
+                                    voting-dapp ~~~ decentralized-voting-dapp
+
+                                    assembly-dapp ==> voting-contract
+                                    decentralized-assembly-dapp ==> voting-contract
+                                    assembly-dapp ~~~ decentralized-assembly-dapp
+
+                                    voting-contract -.-> scdb-contract
+                                    scdb-contract -.-> lido-contract
+            scdb-contract -.-> donate-contract
+
+            donate-nft-dapp ==> donate-contract
+    </script>
 
     <script>
       // Configurazione Tipi di Nodo
@@ -238,162 +400,92 @@
       const LINK_TYPES = {
         SOLID_GRAY: { color: "#888", dash: null },
         SOLID_RED: { color: "#ff4444", dash: null },
-        SOLID_GREEN: { color: "#28a745", dash: null }, // Nuovo tipo verde solido
+        SOLID_GREEN: { color: "#28a745", dash: null },
         DASHED_GRAY: { color: "#888", dash: [2, 1] },
         DASHED_RED: { color: "#ff4444", dash: [2, 1] },
         DASHED_YELLOW: { color: "#ffdd44", dash: [2, 1] },
-        DASHED_GREEN: { color: "#28a745", dash: [2, 1] }, // Nuovo tipo verde tratteggiato
+        DASHED_ORANGE: { color: "#FFAA00", dash: [2, 1] }, // Arancione Chiaro
         INVISIBLE: { color: "transparent", dash: null },
       };
 
-      // Dati Iniziali (Aggiornati)
-      const graphData = {
-        nodes: [
-          // Voting Group (Sinistra)
-          {
-            id: "voting-dapp",
-            name: "Voting DApp",
-            type: "FRONTEND_CENTRALIZED",
-            desc: "Interfaccia centralizzata per il voto",
-            fx: -150,
-            fy: 0,
-            fz: 100, // Posizione fissa iniziale
-            links: {
-              site: "https://votazionicomitato.vercel.app/",
-              github: "https://github.com/DuPont9029/C.O.V.D.E.V",
-            },
-          },
-          {
-            id: "decentralized-voting-dapp",
-            name: "Decentralized Voting DApp",
-            type: "FRONTEND_DECENTRALIZED",
-            desc: "Interfaccia decentralizzata per il voto",
-            fx: -200,
-            fy: -50,
-            fz: 150,
-            links: {
-              site: "https://cdm4upstdl7n3kbaooekc6nxgrrfjnazeocmunigrettyv2562rq.trump-ario.store/ENnKPlMa_t2oIHOIoXm3NGJUtBkjhMo1BoknPFdd9qM",
-              github:
-                "https://ardrive.trump-ario.store/#/file/d0895fc6-2085-4914-85c9-99104bf05f21/view",
-            },
-          },
-          // Assembly Group (Destra)
-          {
-            id: "assembly-dapp",
-            name: "Assembly DApp",
-            type: "FRONTEND_CENTRALIZED",
-            desc: "Interfaccia centralizzata per richiesta assemblee",
-            fx: 150,
-            fy: 0,
-            fz: 100,
-            links: {
-              site: "https://assembleecomitato.vercel.app/",
-              github: "https://github.com/DuPont9029/assembly",
-            },
-          },
-          {
-            id: "decentralized-assembly-dapp",
-            name: "Decentralized Assembly DApp",
-            type: "FRONTEND_DECENTRALIZED",
-            desc: "Interfaccia decentralizzata per richiesta assemblee",
-            fx: 200,
-            fy: -50,
-            fz: 150,
-            links: {
-              site: "https://bdqkkrbu7qskoptqv6d5a2upwapqycr7pc74ij5mx4lu6cxvw4ea.arweave.net/COClRDT8JKc-cK-H0GqPsB8MCj94v8QnrL8XTwr1twg",
-              github:
-                "https://ardrive.trump-ario.store/#/file/d597e202-1fe9-4b42-90dc-d84892e988c3/view",
-            },
-          },
-          // Backend (Centro e Retro)
-          {
-            id: "voting-contract",
-            name: "Smart Contract Voto",
-            type: "BACKEND_CONTRACT",
-            desc: "Logica di voto su blockchain",
-            fx: 0,
-            fy: 100,
-            fz: 0, // In alto al centro
-            links: {
-              blockchain:
-                "https://etherscan.io/address/0x88f2d5c26395dedbf978079e5142caf548688e72",
-              github:
-                "https://github.com/DuPont9029/C.O.V.D.E.V/blob/main/contratto.sol",
-            },
-          },
-          {
-            id: "scdb-contract",
-            name: "SCDB Bank",
-            type: "BACKEND_CONTRACT",
-            desc: "Student Committee Decentralized Bank",
-            fx: 0,
-            fy: 150,
-            fz: -100,
-            links: {
-              blockchain:
-                "https://etherscan.io/address/0xCdE2f579bb7dF0a19C82A494f5441480e2B206A0",
-            },
-          },
-          {
-            id: "lido-contract",
-            name: "Lido stETH",
-            type: "BACKEND_CONTRACT",
-            desc: "Liquid Staking Protocol",
-            fx: 0,
-            fy: 200,
-            fz: -150,
-            links: {
-              blockchain:
-                "https://etherscan.io/token/0xae7ab96520de3a18e5e111b5eaab095312d7fe84",
-            },
-          },
-        ],
-        links: [
-          // Voting Connections
-          {
-            source: "voting-dapp",
-            target: "voting-contract",
-            type: "SOLID_GREEN",
-          },
-          {
-            source: "decentralized-voting-dapp",
-            target: "voting-contract",
-            type: "SOLID_GREEN",
-          },
-          {
-            source: "voting-dapp",
-            target: "decentralized-voting-dapp",
-            type: "INVISIBLE",
-          },
-          // Assembly Connections
-          {
-            source: "assembly-dapp",
-            target: "voting-contract",
-            type: "SOLID_GREEN",
-          },
-          {
-            source: "decentralized-assembly-dapp",
-            target: "voting-contract",
-            type: "SOLID_GREEN",
-          },
-          {
-            source: "assembly-dapp",
-            target: "decentralized-assembly-dapp",
-            type: "INVISIBLE",
-          },
-          // Backend Connections
-          {
-            source: "voting-contract",
-            target: "scdb-contract",
-            type: "DASHED_GREEN",
-          },
-          {
-            source: "scdb-contract",
-            target: "lido-contract",
-            type: "DASHED_GREEN",
-          },
-        ],
-      };
+      // Funzione parser per convertire il blocco Mermaid-like in graphData
+      function parseMermaidData() {
+        const rawText = document.getElementById("mermaid-data").textContent;
+        const lines = rawText.split("\n");
+
+        const nodes = [];
+        const links = [];
+        const nodeMap = {}; // Per accesso veloce
+
+        let currentNode = null;
+
+        lines.forEach((line) => {
+          const l = line.trim();
+          if (!l || l.startsWith("%%")) return; // Salva commenti e linee vuote
+
+          // Regex per Definizione Nodo: id["Label"]:::TYPE
+          const nodeMatch = l.match(/^([\w-]+)\["([^"]+)"\]:::(\w+)/);
+          if (nodeMatch) {
+            const [_, id, name, type] = nodeMatch;
+            currentNode = {
+              id,
+              name,
+              type,
+              links: {},
+            };
+            nodes.push(currentNode);
+            nodeMap[id] = currentNode;
+            return;
+          }
+
+          // Regex per Proprietà: key: "value" o pos: x,y,z
+          if (currentNode && l.match(/^\w+:/)) {
+            // FIX: Usa indexOf per dividere solo alla prima occorrenza di ':'
+            // Questo preserva i due punti all'interno degli URL (es. https://)
+            const firstColonIndex = l.indexOf(":");
+            const key = l.substring(0, firstColonIndex).trim();
+            const rawVal = l.substring(firstColonIndex + 1).trim();
+
+            // Rimuovi virgolette se presenti
+            const cleanVal = rawVal.replace(/^"|"$/g, "");
+
+            if (key === "pos") {
+              const [fx, fy, fz] = cleanVal.split(",").map(Number);
+              currentNode.fx = fx;
+              currentNode.fy = fy;
+              currentNode.fz = fz;
+            } else if (key === "desc") {
+              currentNode.desc = cleanVal;
+            } else {
+              // Assumi che sia un link (site, github, blockchain)
+              currentNode.links[key] = cleanVal;
+            }
+            return;
+          }
+
+          // Regex per Link: Source OP Target
+          // OP: ==> (SOLID_GREEN), --> (SOLID_GRAY), -.-> (DASHED_ORANGE), ~~~ (INVISIBLE)
+          const linkMatch = l.match(/^([\w-]+)\s+([=\-~.>]+)\s+([\w-]+)/);
+          if (linkMatch) {
+            const [_, source, op, target] = linkMatch;
+            let type = "SOLID_GRAY";
+
+            if (op === "==>") type = "SOLID_GREEN";
+            else if (op === "-.->") type = "DASHED_ORANGE";
+            else if (op === "~~~") type = "INVISIBLE";
+            else if (op === "-->") type = "SOLID_GRAY";
+
+            links.push({ source, target, type });
+            currentNode = null; // Reset context
+            return;
+          }
+        });
+
+        return { nodes, links };
+      }
+
+      // Genera i dati dal blocco script
+      const graphData = parseMermaidData();
 
       // Gestione Modale
       const modalOverlay = document.getElementById("modal-overlay");
@@ -457,6 +549,63 @@
 
       // Configurazione forze personalizzata dopo l'inizializzazione
       Graph.d3Force("charge").strength(-100); // Riduci respingimento per evitare esplosioni
+
+      // Setup Lighting (Neon Studio)
+      const scene = Graph.scene();
+      scene.add(new THREE.AmbientLight(0x001133, 0.5)); // Luce ambientale blu scuro
+      const dirLight1 = new THREE.DirectionalLight(0x00ffff, 1.0); // Luce Ciano
+      dirLight1.position.set(200, 200, 100);
+      scene.add(dirLight1);
+      const dirLight2 = new THREE.DirectionalLight(0xff00ff, 0.8); // Luce Magenta Backlight
+      dirLight2.position.set(-200, -200, -100);
+      scene.add(dirLight2);
+
+      // Hackers Style Background Elements
+      // 1. Grid Helper (The "Net" floor)
+      const gridHelper = new THREE.GridHelper(2000, 50, 0x0044aa, 0x001122);
+      gridHelper.position.y = -100; // Place below nodes
+      scene.add(gridHelper);
+
+      // 2. Large Wireframe Globe (The "World" context)
+      const bgGeo = new THREE.SphereGeometry(1000, 64, 64);
+      const bgMat = new THREE.MeshBasicMaterial({
+        color: 0x002244,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.15,
+        side: THREE.BackSide,
+      });
+      const bgSphere = new THREE.Mesh(bgGeo, bgMat);
+      scene.add(bgSphere);
+
+      // 3. Floating Particles (Data streams)
+      const particlesGeo = new THREE.BufferGeometry();
+      const particleCount = 500;
+      const posArray = new Float32Array(particleCount * 3);
+      for (let i = 0; i < particleCount * 3; i++) {
+        posArray[i] = (Math.random() - 0.5) * 2000;
+      }
+      particlesGeo.setAttribute(
+        "position",
+        new THREE.BufferAttribute(posArray, 3)
+      );
+      const particlesMat = new THREE.PointsMaterial({
+        size: 3,
+        color: 0x00ffff,
+        transparent: true,
+        opacity: 0.4,
+        blending: THREE.AdditiveBlending,
+      });
+      const particles = new THREE.Points(particlesGeo, particlesMat);
+      scene.add(particles);
+
+      // Animate background
+      const animateBg = () => {
+        bgSphere.rotation.y += 0.0005;
+        particles.rotation.y -= 0.0002;
+        requestAnimationFrame(animateBg);
+      };
+      animateBg();
 
       // Libera i nodi dopo un breve periodo per permettere interazione
       setTimeout(() => {
@@ -523,6 +672,23 @@
                 model.scale.set(scale, scale, scale);
               }
 
+              // Applica materiale metallico (Neon)
+              model.traverse((o) => {
+                if (o.isMesh) {
+                  // Preserva il colore originale se possibile, o usa un default
+                  const originalColor = o.material.color
+                    ? o.material.color
+                    : new THREE.Color(0xffffff);
+                  o.material = new THREE.MeshStandardMaterial({
+                    color: originalColor,
+                    metalness: 0.9,
+                    roughness: 0.1,
+                    emissive: originalColor,
+                    emissiveIntensity: 0.3,
+                  });
+                }
+              });
+
               group.add(model);
             },
             undefined,
@@ -561,22 +727,30 @@
           const hitbox = new THREE.Mesh(hitboxGeo, hitboxMat);
           group.add(hitbox);
 
-          // Wireframe Globe
+          // Wireframe Globe Metallic (Neon)
           const globeGeo = new THREE.IcosahedronGeometry(size * 0.8, 2);
-          const globeMat = new THREE.MeshBasicMaterial({
-            color: 0xffff00, // Giallo brillante
+          const globeMat = new THREE.MeshStandardMaterial({
+            color: typeConfig.color,
             wireframe: true,
             transparent: true,
-            opacity: 0.9,
+            opacity: 0.8,
+            metalness: 0.9,
+            roughness: 0.1,
+            emissive: typeConfig.color,
+            emissiveIntensity: 0.8, // Strong Glow
           });
           const globe = new THREE.Mesh(globeGeo, globeMat);
 
           // Aggiungi nucleo interno per visibilità
           const coreGeo = new THREE.IcosahedronGeometry(size * 0.4, 1);
-          const coreMat = new THREE.MeshBasicMaterial({
+          const coreMat = new THREE.MeshStandardMaterial({
             color: typeConfig.color,
             transparent: true,
-            opacity: 0.5,
+            opacity: 0.9,
+            metalness: 0.1,
+            roughness: 0.1,
+            emissive: typeConfig.color,
+            emissiveIntensity: 1.0, // Core Glow
           });
           const core = new THREE.Mesh(coreGeo, coreMat);
           globe.add(core);
@@ -655,6 +829,15 @@
       window.addEventListener("resize", () => {
         Graph.width(window.innerWidth);
         Graph.height(window.innerHeight);
+      });
+
+      // Reset Camera Button Logic
+      document.getElementById("reset-camera").addEventListener("click", () => {
+        Graph.cameraPosition(
+          { x: 0, y: 0, z: 600 }, // Nuova posizione
+          { x: 0, y: 0, z: 0 }, // LookAt
+          2000 // Durata transizione (ms)
+        );
       });
     </script>
   </body>
